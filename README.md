@@ -517,6 +517,12 @@ Usage: flask [OPTIONS] COMMAND [ARGS]...
 If you are building a service or web-app, that is going to be deployed to some infrastructure,
 you typically don't need to make a package out of your code. But it might still be useful for versioning or deployment considerations.
 
+When developing on a package, it's a good idea to install the package as
+[editable](https://pipenv-fork.readthedocs.io/en/latest/basics.html#editable-dependencies-e-g-e).
+This tells Pipenv/Pip that code should be runned or imported directly from the source folder
+rather than from installed packages. This way you won't have to re-install the package
+everytime you want to test some changes to the code.
+
 Unfortunately, packaging in Python has always been rather messy and lacking in standardization.
 The recommended recipe has, until recently, been to [use setuptools and write a setup.py file](https://packaging.python.org/tutorials/packaging-projects/).
 
