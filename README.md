@@ -228,7 +228,7 @@ def get_user(user_id):
       raise InvalidUser(f'user with id {user_id} does not exist')
 ```
 
-### Types and Abstraction
+### Types and Generalization
 Python is a duck-typed language, meaning that any object can be used anywhere, as long as it *behaves* as it should,
 that is, as long as it exposes the right methods. Consider the following function
 ```python
