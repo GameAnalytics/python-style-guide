@@ -132,8 +132,8 @@ If you remove a call to a piece of code (function, class, etc.) and that code is
 ### Exceptions and Error Handling
 Python's error handling is built around exceptions. Use them.
 
-It's good practice to write *defensive code*, i.e. consider and account for edge cases and invalid states in your code.
-Python's built-in exceptions are often useful
+Raise exceptions in your code when encountering an invalid state with no clear way to recover from,
+e.g. when a caller tries to use a function in a way that is not well-defined
 ```python
 def get_persons_by_age(age):
    if age < 0:
@@ -141,7 +141,21 @@ def get_persons_by_age(age):
    ...
 ```
 
-Likewise, be defensive when *running* code that might raise exceptions
+But in general, you should never check the type of arguments passed to the function.
+Python's type system is built around the concept of duck-typing. Meaning that as long as an object
+*behaves* like it should, i.e. defines the needed interface, it doesn't matter what the
+type actually is. Checking the type would then limit the generalizability of the function.
+
+As an example, consider a function that needs to iterate over a collection of objects and do something
+for each of them. This function could take any type as argument, as long as the type is an *iterable*
+of some sort. Implementing a check to see if the type is a list would be pointless and actually harmful.
+
+If a caller passes an incompatible object as an argument, the function should eventually fail,
+often in way where it's not obvious that it was due to an incompatible argument.
+That is unfortunately the price we pay for having duck-typing.
+
+When *running* code that might raise exceptions, we should catch exceptions that are expected and
+that we know how to handle in a good way
 ```python
 def load_config(conf_path):
    try:
@@ -150,25 +164,6 @@ def load_config(conf_path):
       print('Could not load config, loading default config')
       conf_file = open(DEFAULT_CONFIG_PATH)
    ...
-```
-
-Pythons built-in exceptions are often enough, but sometimes it can be useful for us to define our own exceptions.
-
-One example where this could be useful, is when we want to pass low-level errors up to a higher layer of abstraction.
-Maybe we are writing a client library for a database and we don't want to expose the library users to database exceptions.
-```python
-import sqlalchemy.orm.exc as exc
-import db
-import models
-
-class InvalidUser(Exception):
-   pass
-
-def get_user(user_id):
-   try:
-      user = db.session.query(models.User).filter(models.User.uid == user_id).one()
-   except exc.NoResultFound:
-      raise InvalidUser(f'user with id {user_id} does not exist')
 ```
 
 You should however, only catch exceptions that you know how to handle.
@@ -214,6 +209,25 @@ Note however that there can be legitimate reasons to return `None` from a functi
 If a function would normally return some scalar value, which might not exist and if the non-existence of that value is not an error,
 the function may return `None`. The documentation of the function should state that it might return `None`.
 
+Pythons built-in exceptions are often enough, but sometimes it can be useful for us to define our own exceptions.
+
+One example where this could be useful, is when we want to pass low-level errors up to a higher layer of abstraction.
+Maybe we are writing a client library for a database and we don't want to expose the library users to database exceptions.
+```python
+import sqlalchemy.orm.exc as exc
+import db
+import models
+
+class InvalidUser(Exception):
+   pass
+
+def get_user(user_id):
+   try:
+      user = db.session.query(models.User).filter(models.User.uid == user_id).one()
+   except exc.NoResultFound:
+      raise InvalidUser(f'user with id {user_id} does not exist')
+```
+
 ### Types and Abstraction
 Python is a duck-typed language, meaning that any object can be used anywhere, as long as it *behaves* as it should,
 that is, as long as it exposes the right methods. Consider the following function
@@ -226,9 +240,6 @@ def find_squanched_frob(frobs):
 ```
 
 This function works as long as `frobs` is an iterable, it doesn't matter if it's a list, dict, generator, etc.
-Checking if the input is a list and raising an exception, would be pointlessly limiting and wouldn't make much of a difference,
-since the function would fail in any case, if `frobs` happened to be something non-iterable.
-In general, we don't check types in Python. There are edge-cases, but they are rare.
 
 One downside of duck-typing is that many errors that could have been prevented, by having a static type system,
 will only reveal themselves at runtime. For example, passing a non-iterable to `find_squanched_frobs` by mistake
