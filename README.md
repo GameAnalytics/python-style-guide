@@ -13,7 +13,7 @@ other guides that are considered to have some authority in the wider Python comm
    
 Each chapter takes the form of a list of rules, followed by subsections of clarifications for each rule.
 
-Finally, there are sometimes good reasons for breaking the rules, so use your best judgement, but make sure that your reason is actually good.
+Finally, there are sometimes good reasons for breaking the rules, so use your best judgement.
 
 ## Style
 1. PEP8 is **law**, never break PEP8. Only exception is:
@@ -474,8 +474,9 @@ and [PEP 518](python.org/dev/peps/pep-0518/).
 This enables package authors to specify what tools are required to build their package, through the `pyproject.toml` file,
 without having to implicitly require that the user installs a specific build system, like setuptools.
 
-Python packaging is (thankfully) a very active area of development in the Python community and you are strongly
-encouraged to use the latest accepted standards which, at the time of writing, is using `pyproject.toml`.
+Python packaging is a very active area of development in the Python community and you are strongly
+encouraged to use the latest accepted standards which, at the time of writing,
+is using `pyproject.toml`.
 
 You are free to use any build system, but most users will probably want to use setuptools.
 [This is a nice explanation](https://snarky.ca/what-the-heck-is-pyproject-toml/) of what the `pryproject.toml`
