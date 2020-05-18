@@ -125,8 +125,9 @@ If you remove a call to a piece of code (function, class, etc.) and that code is
 5. But don't constrain functions unnecessarily, use abstract types, use duck-typing as an advantage, not a liability.
 6. Python has a rich standard library, you are highly encouraged to use it whenever possible.
 7. Don't be afraid to use abstractions like list comprehensions, generators, iterators, context managers etc. where appropriate.
-8. Prefer pure functions over object-oriented programming, but use OOP when appropriate.
-9. When writing classes, don't create getters and setters, just access the attribute directly.
+8. Don't use mutable types as default arguments.
+9. Prefer pure functions over object-oriented programming, but use OOP when appropriate.
+10. When writing classes, don't create getters and setters, just access the attribute directly.
 
 ### Exceptions and Error Handling
 Python's error handling is built around exceptions. Use them.
@@ -408,6 +409,40 @@ to the class, should be prefixed with `_`.
 In case it is necessary to run code whenever the user sets or gets an attribute,
 use the [`@property` decorator](https://docs.python.org/3/library/functions.html#property).
 It is also considered good practice to use the `@classmethod` decorator for factory methods and `@staticmethod` for any static methods.
+
+When writing functions with default arguments, don't use mutable default values like
+```python
+def squanch_frobs(frobs, excluded_frobs=[]):
+...
+```
+
+Intuitively, one would think that the list assigned to `excluded_frobs` would be re-initialized as
+empty, everytime the function is called. But it is actually constructed once, at import time, so
+instead becomes a form of mutable global state. If we defined `squanch_frobs` like this
+```python
+def squanch_frobs(frobs, excluded_frobs=[]):
+   excluded_frobs.append(1)
+   print(excluded_frobs)
+```
+Then called it multiple times, we would get
+```console
+>>> squanch_frobs(my_frobs)
+[1]
+>>> squanch_frobs(my_frobs)
+[1, 1]
+```
+
+When you don't need the argument to be mutable inside the function, you could simply use a non-mutable
+alternative, like a tuple instead of a list.
+
+If you do need the argument to be mutable, ther Pythonic way of handling it would be to set it to `None`
+and then initialize in the function body
+```python
+def squanch_frobs(frobs, excluded_frobs=None):
+   if excluded_frobs is None:
+      excluded_frobs = []
+   ...
+```
 
 ## Testing
 Proper test coverage is always important, more so in dynamically typed languages like Python, where even trivial type errors
