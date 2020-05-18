@@ -42,7 +42,7 @@ Instead, use a linter like `flake8` in your editor, to make sure that your code 
 
 Although PEP8 says to keep lines to 79 columns, this seems to be somewhat outdated today.
 The primary motivation for limiting line length is the ability to have 2 editor windows next to each other without wrapping lines.
-Since most people use 16:9 monitor formats today, a max line length of 99 should be fine.
+Since most people use 16:9 monitors today, a max line length of 99 should be fine.
 
 Running a linter in you CI chain (Travis etc.) makes reviews a lot quicker, as the reviewer can immediately see if the code is PEP8 compliant.
 
@@ -109,7 +109,7 @@ Example of bad comments:
 # Get all frobs for users   <-- Redundant, stating the obvious
 user_frobs = get_user_frobs(user_id)
 
-# Request contains user_id, access_level and name   <-- Will become outdated/misleading, should maybe be in documentation
+# Request contains user_id, access_level and name   <-- Will become outdated/misleading
 request = get_request()
 ```
 
@@ -392,13 +392,18 @@ That doesn't mean that OOP is not a useful tool. Classes can be incredibly usefu
 1. Storing related data together, e.g. a User class with name, email, user_id, etc. Check out [dataclasses](https://docs.python.org/3/library/dataclasses.html)
 2. Encapsulating concepts that are inherently stateful, like database connections, UI elements, data structures.
 3. Inheritance can be useful for Polymorphism. This works especially well with the typing system.
-   Imagine that you are writing a library that needs to be able to interact with 2 kinds of data backends, Druid and SQL.
-   You could then write an abstract DataBackend class, defining the methods that all data backends should implement.
-   Then write 2 classes DruidBackend and SQLBackend, that inherit from this class, and use DataBackend as a type for any
-   function that needs to be able to interact with both. A [protocol](https://www.python.org/dev/peps/pep-0544/) may sometimes be a better fit.
+
+As an example of `3.`, imagine that you are writing a library that needs to be able to interact
+with 2 kinds of data backends, Druid and SQL.
+You could then write an abstract DataBackend class, defining the methods that all data
+backends should implement.
+Then write 2 classes, DruidBackend and SQLBackend, that inherit from this class,
+and use DataBackend as a type for any function that needs to be able to interact with both.
+A [protocol](https://www.python.org/dev/peps/pep-0544/) may sometimes be a better fit.
 
 The Pythonic way of accessing class attributes in general, is not to use getters and setters.
-Instead, the user simply accesses the attribute directly. Any attribute which is considered internal to the class, should be prefixed with `_`.
+Instead, the user simply accesses the attribute directly. Any attribute which is considered internal
+to the class, should be prefixed with `_`.
 
 In case it is necessary to run code whenever the user sets or gets an attribute,
 use the [`@property` decorator](https://docs.python.org/3/library/functions.html#property).
@@ -422,7 +427,7 @@ When dealing with external entities and services, like an SQL database, or AWS, 
 Many services even have their own Python libraries, specifically for mocking tests.
 For example, the popular boto3 library for interacting with AWS, has a mock version called moto3.
 
-It is the responsibility of the developer implementing a feature, to make sure that new and changed code is adequately covered with tests.
+It is the responsibility of the developer implementing a feature to make sure that new and changed code is adequately covered with tests.
 Remember to take tests into account when estimating time for a project.
 
 It is highly recommended to integrate services like [codecov](https://codecov.io/) or [coveralls](https://coveralls.io/) into your CI chain.
