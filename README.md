@@ -13,7 +13,7 @@ other guides that are considered to have some authority in the wider Python comm
    
 Each chapter takes the form of a list of rules, followed by subsections of clarifications for each rule.
 
-Finally, there are sometimes good reasons for breaking the rules, so use your best judgement, but make sure that your reason is actually good.
+Finally, there are sometimes good reasons for breaking the rules, so use your best judgement.
 
 ## Style
 1. PEP8 is **law**, never break PEP8. Only exception is:
@@ -42,7 +42,7 @@ Instead, use a linter like `flake8` in your editor, to make sure that your code 
 
 Although PEP8 says to keep lines to 79 columns, this seems to be somewhat outdated today.
 The primary motivation for limiting line length is the ability to have 2 editor windows next to each other without wrapping lines.
-Since most people use 16:9 monitor formats today, a max line length of 99 should be fine.
+Since most people use 16:9 monitors today, a max line length of 99 should be fine.
 
 Running a linter in you CI chain (Travis etc.) makes reviews a lot quicker, as the reviewer can immediately see if the code is PEP8 compliant.
 
@@ -109,7 +109,7 @@ Example of bad comments:
 # Get all frobs for users   <-- Redundant, stating the obvious
 user_frobs = get_user_frobs(user_id)
 
-# Request contains user_id, access_level and name   <-- Will become outdated/misleading, should maybe be in documentation
+# Request contains user_id, access_level and name   <-- Will become outdated/misleading
 request = get_request()
 ```
 
@@ -125,14 +125,15 @@ If you remove a call to a piece of code (function, class, etc.) and that code is
 5. But don't constrain functions unnecessarily, use abstract types, use duck-typing as an advantage, not a liability.
 6. Python has a rich standard library, you are highly encouraged to use it whenever possible.
 7. Don't be afraid to use abstractions like list comprehensions, generators, iterators, context managers etc. where appropriate.
-8. Prefer pure functions over object-oriented programming, but use OOP when appropriate.
-9. When writing classes, don't create getters and setters, just access the attribute directly.
+8. Don't use mutable types as default arguments.
+9. Prefer pure functions over object-oriented programming, but use OOP when appropriate.
+10. When writing classes, don't create getters and setters, just access the attribute directly.
 
 ### Exceptions and Error Handling
 Python's error handling is built around exceptions. Use them.
 
-It's good practice to write *defensive code*, i.e. consider and account for edge cases and invalid states in your code.
-Python's built-in exceptions are often useful
+Raise exceptions in your code when encountering an invalid state with no clear way to recover from,
+e.g. when a caller tries to use a function in a way that is not well-defined
 ```python
 def get_persons_by_age(age):
    if age < 0:
@@ -140,7 +141,21 @@ def get_persons_by_age(age):
    ...
 ```
 
-Likewise, be defensive when *running* code that might raise exceptions
+But in general, you should never check the type of arguments passed to the function.
+Python's type system is built around the concept of duck-typing. Meaning that as long as an object
+*behaves* like it should, i.e. defines the needed interface, it doesn't matter what the
+type actually is. Checking the type would then limit the generalizability of the function.
+
+As an example, consider a function that needs to iterate over a collection of objects and do something
+for each of them. This function could take any type as argument, as long as the type is an *iterable*
+of some sort. Implementing a check to see if the type is a list would be pointless and actually harmful.
+
+If a caller passes an incompatible object as an argument, the function should eventually fail,
+often in way where it's not obvious that it was due to an incompatible argument.
+That is unfortunately the price we pay for having duck-typing.
+
+When *running* code that might raise exceptions, we should catch exceptions that are expected and
+that we know how to handle in a good way
 ```python
 def load_config(conf_path):
    try:
@@ -149,25 +164,6 @@ def load_config(conf_path):
       print('Could not load config, loading default config')
       conf_file = open(DEFAULT_CONFIG_PATH)
    ...
-```
-
-Pythons built-in exceptions are often enough, but sometimes it can be useful for us to define our own exceptions.
-
-One example where this could be useful, is when we want to pass low-level errors up to a higher layer of abstraction.
-Maybe we are writing a client library for a database and we don't want to expose the library users to database exceptions.
-```python
-import sqlalchemy.orm.exc as exc
-import db
-import models
-
-class InvalidUser(Exception):
-   pass
-
-def get_user(user_id):
-   try:
-      user = db.session.query(models.User).filter(models.User.uid == user_id).one()
-   except exc.NoResultFound:
-      raise InvalidUser(f'user with id {user_id} does not exist')
 ```
 
 You should however, only catch exceptions that you know how to handle.
@@ -213,6 +209,25 @@ Note however that there can be legitimate reasons to return `None` from a functi
 If a function would normally return some scalar value, which might not exist and if the non-existence of that value is not an error,
 the function may return `None`. The documentation of the function should state that it might return `None`.
 
+Pythons built-in exceptions are often enough, but sometimes it can be useful for us to define our own exceptions.
+
+One example where this could be useful, is when we want to pass low-level errors up to a higher layer of abstraction.
+Maybe we are writing a client library for a database and we don't want to expose the library users to database exceptions.
+```python
+import sqlalchemy.orm.exc as exc
+import db
+import models
+
+class InvalidUser(Exception):
+   pass
+
+def get_user(user_id):
+   try:
+      user = db.session.query(models.User).filter(models.User.uid == user_id).one()
+   except exc.NoResultFound:
+      raise InvalidUser(f'user with id {user_id} does not exist')
+```
+
 ### Types and Abstraction
 Python is a duck-typed language, meaning that any object can be used anywhere, as long as it *behaves* as it should,
 that is, as long as it exposes the right methods. Consider the following function
@@ -225,9 +240,6 @@ def find_squanched_frob(frobs):
 ```
 
 This function works as long as `frobs` is an iterable, it doesn't matter if it's a list, dict, generator, etc.
-Checking if the input is a list and raising an exception, would be pointlessly limiting and wouldn't make much of a difference,
-since the function would fail in any case, if `frobs` happened to be something non-iterable.
-In general, we don't check types in Python. There are edge-cases, but they are rare.
 
 One downside of duck-typing is that many errors that could have been prevented, by having a static type system,
 will only reveal themselves at runtime. For example, passing a non-iterable to `find_squanched_frobs` by mistake
@@ -392,17 +404,56 @@ That doesn't mean that OOP is not a useful tool. Classes can be incredibly usefu
 1. Storing related data together, e.g. a User class with name, email, user_id, etc. Check out [dataclasses](https://docs.python.org/3/library/dataclasses.html)
 2. Encapsulating concepts that are inherently stateful, like database connections, UI elements, data structures.
 3. Inheritance can be useful for Polymorphism. This works especially well with the typing system.
-   Imagine that you are writing a library that needs to be able to interact with 2 kinds of data backends, Druid and SQL.
-   You could then write an abstract DataBackend class, defining the methods that all data backends should implement.
-   Then write 2 classes DruidBackend and SQLBackend, that inherit from this class, and use DataBackend as a type for any
-   function that needs to be able to interact with both. A [protocol](https://www.python.org/dev/peps/pep-0544/) may sometimes be a better fit.
+
+As an example of `3.`, imagine that you are writing a library that needs to be able to interact
+with 2 kinds of data backends, Druid and SQL.
+You could then write an abstract DataBackend class, defining the methods that all data
+backends should implement.
+Then write 2 classes, DruidBackend and SQLBackend, that inherit from this class,
+and use DataBackend as a type for any function that needs to be able to interact with both.
+A [protocol](https://www.python.org/dev/peps/pep-0544/) may sometimes be a better fit.
 
 The Pythonic way of accessing class attributes in general, is not to use getters and setters.
-Instead, the user simply accesses the attribute directly. Any attribute which is considered internal to the class, should be prefixed with `_`.
+Instead, the user simply accesses the attribute directly. Any attribute which is considered internal
+to the class, should be prefixed with `_`.
 
 In case it is necessary to run code whenever the user sets or gets an attribute,
 use the [`@property` decorator](https://docs.python.org/3/library/functions.html#property).
 It is also considered good practice to use the `@classmethod` decorator for factory methods and `@staticmethod` for any static methods.
+
+When writing functions with default arguments, don't use mutable default values like
+```python
+def squanch_frobs(frobs, excluded_frobs=[]):
+...
+```
+
+Intuitively, one would think that the list assigned to `excluded_frobs` would be re-initialized as
+empty, everytime the function is called. But it is actually constructed once, at import time, so
+instead becomes a form of mutable global state. If we defined `squanch_frobs` like this
+```python
+def squanch_frobs(frobs, excluded_frobs=[]):
+   excluded_frobs.append(1)
+   print(excluded_frobs)
+```
+Then called it multiple times, we would get
+```console
+>>> squanch_frobs(my_frobs)
+[1]
+>>> squanch_frobs(my_frobs)
+[1, 1]
+```
+
+When you don't need the argument to be mutable inside the function, you could simply use a non-mutable
+alternative, like a tuple instead of a list.
+
+If you do need the argument to be mutable, the Pythonic way of handling it would be to set it to `None`
+and then initialize in the function body
+```python
+def squanch_frobs(frobs, excluded_frobs=None):
+   if excluded_frobs is None:
+      excluded_frobs = []
+   ...
+```
 
 ## Testing
 Proper test coverage is always important, more so in dynamically typed languages like Python, where even trivial type errors
@@ -422,7 +473,7 @@ When dealing with external entities and services, like an SQL database, or AWS, 
 Many services even have their own Python libraries, specifically for mocking tests.
 For example, the popular boto3 library for interacting with AWS, has a mock version called moto3.
 
-It is the responsibility of the developer implementing a feature, to make sure that new and changed code is adequately covered with tests.
+It is the responsibility of the developer implementing a feature to make sure that new and changed code is adequately covered with tests.
 Remember to take tests into account when estimating time for a project.
 
 It is highly recommended to integrate services like [codecov](https://codecov.io/) or [coveralls](https://coveralls.io/) into your CI chain.
@@ -466,6 +517,12 @@ Usage: flask [OPTIONS] COMMAND [ARGS]...
 If you are building a service or web-app, that is going to be deployed to some infrastructure,
 you typically don't need to make a package out of your code. But it might still be useful for versioning or deployment considerations.
 
+When developing on a package, it's a good idea to install the package as
+[editable](https://pipenv-fork.readthedocs.io/en/latest/basics.html#editable-dependencies-e-g-e).
+This tells Pipenv/Pip that code should be runned or imported directly from the source folder
+rather than from installed packages. This way you won't have to re-install the package
+everytime you want to test some changes to the code.
+
 Unfortunately, packaging in Python has always been rather messy and lacking in standardization.
 The recommended recipe has, until recently, been to [use setuptools and write a setup.py file](https://packaging.python.org/tutorials/packaging-projects/).
 
@@ -474,8 +531,9 @@ and [PEP 518](python.org/dev/peps/pep-0518/).
 This enables package authors to specify what tools are required to build their package, through the `pyproject.toml` file,
 without having to implicitly require that the user installs a specific build system, like setuptools.
 
-Python packaging is (thankfully) a very active area of development in the Python community and you are strongly
-encouraged to use the latest accepted standards which, at the time of writing, is using `pyproject.toml`.
+Python packaging is a very active area of development in the Python community and you are strongly
+encouraged to use the latest accepted standards which, at the time of writing,
+is using `pyproject.toml`.
 
 You are free to use any build system, but most users will probably want to use setuptools.
 [This is a nice explanation](https://snarky.ca/what-the-heck-is-pyproject-toml/) of what the `pryproject.toml`
