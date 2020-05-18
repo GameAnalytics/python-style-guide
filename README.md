@@ -446,7 +446,7 @@ Then called it multiple times, we would get
 When you don't need the argument to be mutable inside the function, you could simply use a non-mutable
 alternative, like a tuple instead of a list.
 
-If you do need the argument to be mutable, ther Pythonic way of handling it would be to set it to `None`
+If you do need the argument to be mutable, the Pythonic way of handling it would be to set it to `None`
 and then initialize in the function body
 ```python
 def squanch_frobs(frobs, excluded_frobs=None):
