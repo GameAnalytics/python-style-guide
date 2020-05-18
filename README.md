@@ -489,14 +489,16 @@ it is necessary to separate projects into virtual environments.
 Many different virtual env tools exist for Python. Python has a built-in tool called venv, but this tool is very low-level,
 so it might be a good idea to install a more high-level tool, like virtualenv.
 
-Somewhat recently, a new virtual env tool called [Pipenv](https://pipenv-fork.readthedocs.io/en/latest/) was released.
-Pipenv is somewhat more ambitious than other tools, as it also replaces `pip` (or acts as a frontend for pip),
-for the purpose of installing packages into the virtual environment.
-The benefit of using Pipenv over pip, is that Pipenv promises to make deterministic environments, something that pip unfortunately cannot do.
+Somewhat recently, a couple of new tools called [Poetry](https://python-poetry.org/)
+and [Pipenv](https://pipenv-fork.readthedocs.io/en/latest/) have appeared.
+Both of these tools are intended to replace Pip and offer both virtual environment support and dependency management.
+
+One benefit of using these over pip, is that they promise to make deterministic environments, something that pip unfortunately cannot do.
 This means that you can install dependencies in your dev environment, test that everything works, deploy to production and be certain that
 the exact same versions of your dependencies will be installed there, even without pinning the version numbers.
 
-Pipenv is, as of writing this guide, still a bit buggy and rough around the edges, but very much a usable tool.
+Both offer more or less the same features, except that Poetry makes packaging considerably easier, as it needs only the `pyproject.toml` file,
+as discussed in the next section.
 
 ### Packaging
 You should always consider whether your project should be an installable Python package.
@@ -517,11 +519,12 @@ Usage: flask [OPTIONS] COMMAND [ARGS]...
 If you are building a service or web-app, that is going to be deployed to some infrastructure,
 you typically don't need to make a package out of your code. But it might still be useful for versioning or deployment considerations.
 
-When developing on a package, it's a good idea to install the package as
-[editable](https://pipenv-fork.readthedocs.io/en/latest/basics.html#editable-dependencies-e-g-e).
-This tells Pipenv/Pip that code should be runned or imported directly from the source folder
+When developing on a package, it's a good idea to install the package as editable.
+This tells your package manager that code should be runned or imported directly from the source folder
 rather than from installed packages. This way you won't have to re-install the package
-everytime you want to test some changes to the code.
+everytime you want to test some changes to the code. Root packages are installed as editable by default in Poetry,
+here is how to do it in [Pipenv](https://pipenv-fork.readthedocs.io/en/latest/basics.html#editable-dependencies-e-g-e)
+and [Pip](https://pip.pypa.io/en/stable/reference/pip_install/#editable-installs).
 
 Unfortunately, packaging in Python has always been rather messy and lacking in standardization.
 The recommended recipe has, until recently, been to [use setuptools and write a setup.py file](https://packaging.python.org/tutorials/packaging-projects/).
@@ -532,12 +535,13 @@ This enables package authors to specify what tools are required to build their p
 without having to implicitly require that the user installs a specific build system, like setuptools.
 
 Python packaging is a very active area of development in the Python community and you are strongly
-encouraged to use the latest accepted standards which, at the time of writing,
-is using `pyproject.toml`.
+encouraged to use the latest accepted standards which, at the time of writing, is using `pyproject.toml`.
 
-You are free to use any build system, but most users will probably want to use setuptools.
-[This is a nice explanation](https://snarky.ca/what-the-heck-is-pyproject-toml/) of what the `pryproject.toml`
-file is and how to use it together with setuptools.
+Poetry is it's own build system, so only needs the `pyproject.toml` file in order to build both wheels and source distributions.
+If you don't use Poetry, you are free to use any other build system, but most users will probably want to use setuptools.
+[This article](https://snarky.ca/what-the-heck-is-pyproject-toml/) contains an explanation of how to use the `pyproject.toml` file with setuptools.
+
+Once a package has been built into a wheel, this artifact can then be distributed and installed anywhere, by any package manager.
 
 ### Versioning
 If you are building a package, espcecially if you are building a library, you need to version the package.
