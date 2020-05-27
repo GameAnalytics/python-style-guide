@@ -337,17 +337,17 @@ meaning it doesn't change any external objects or variables and it always return
 ```python
 frobs = get_frobs()
 
-# Undeterministic
+# Mutates external state
 def squanch_frobs(frobs):
    for frob in frobs:
       frob.squanch()
 
-# Bad
+# Mutates external state and doesn't say which state
 def squanch_frobs():
    for frob in frobs:
       frob.squanch()
 
-# Immutable (and Compact)
+# Pure - doesn't mutate external state
 def squanch_frobs(frobs):
    return [frob.squanch() for frob in frobs]
 ```
