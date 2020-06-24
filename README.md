@@ -337,17 +337,17 @@ meaning it doesn't change any external objects or variables and it always return
 ```python
 frobs = get_frobs()
 
-# Bad
+# Mutates external state
 def squanch_frobs(frobs):
    for frob in frobs:
       frob.squanch()
 
-# Worse
+# Mutates external state and doesn't say which state
 def squanch_frobs():
    for frob in frobs:
       frob.squanch()
 
-# Good
+# Pure - doesn't mutate external state
 def squanch_frobs(frobs):
    return [frob.squanch() for frob in frobs]
 ```
@@ -544,7 +544,7 @@ If you don't use Poetry, you are free to use any other build system, but most us
 Once a package has been built into a wheel, this artifact can then be distributed and installed anywhere, by any package manager.
 
 ### Versioning
-If you are building a package, espcecially if you are building a library, you need to version the package.
+If you are building a package, especially if you are building a library, you need to version the package.
 You are free to use any versioning scheme, as long as you are consistent about what the version numbers *mean*.
 
 A popular versioning standard is [semantic versioning](https://semver.org/) or SemVer.
