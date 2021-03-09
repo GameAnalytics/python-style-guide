@@ -122,7 +122,7 @@ If you remove a call to a piece of code (function, class, etc.) and that code is
 7. Don't be afraid to use abstractions like list comprehensions, generators, iterators, context managers etc. where appropriate.
 8. Don't use mutable types as default arguments.
 9. Prefer pure functions over object-oriented programming, but use OOP when appropriate.
-10. When writing classes, don't create getters and setters, just access the attribute directly.
+10. When writing classes, don't create getters and setters unless necessary, just access the attribute directly.
 
 ### Exceptions and Error Handling
 Python's error handling is built around exceptions. Use them.
@@ -414,6 +414,9 @@ to the class, should be prefixed with `_`.
 
 In case it is necessary to run code whenever the user sets or gets an attribute,
 use the [`@property` decorator](https://docs.python.org/3/library/functions.html#property).
+Note that if you start out by using a simple attribute, you can later change it to a `@property` decorated getter method
+without changing the class interface at all. The users of the class will be none the wiser.
+
 It is also considered good practice to use the `@classmethod` decorator for factory methods and `@staticmethod` for any static methods.
 
 When writing functions with default arguments, don't use mutable default values like
