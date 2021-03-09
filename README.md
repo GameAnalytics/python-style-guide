@@ -26,14 +26,13 @@ Finally, there are sometimes good reasons for breaking the rules, so use your be
 5. Make names descriptive, but concise.
 6. Symbols that are internal to a module or class, should start with `_`.
 7. Avoid redundant naming, e.g. `models.UserModel`.
-8. Avoid importing symbols directly, instead import the entire module.
-9. Use [new-style format strings](https://docs.python.org/3/library/string.html#format-string-syntax),
+8. Use [new-style format strings](https://docs.python.org/3/library/string.html#format-string-syntax),
    don't use old style `%` format strings or string concatenation with `+`.
-10. Public functions must be documented with docstrings
-11. Avoid comments, unless they are absolutely necessary for understanding the code.
-12. Never commit commented-out code. Just delete it, Git remembers.
-13. Remove dead code as early as possible. Don't leave it around *just in case we need it*, Git remembers.
-14. Follow the boy scout rule, leave code better than you found it.
+9. Public functions must be documented with docstrings
+10. Keep comments to a minimum, generally only needed when they are necessary for understanding the code.
+11. Never commit commented-out code. Just delete it, Git remembers.
+12. Remove dead code as early as possible. Don't leave it around *just in case we need it*, Git remembers.
+13. Follow the boy scout rule, leave code better than you found it.
 
 ### PEP8
 [PEP8](https://www.python.org/dev/peps/pep-0008/) forms the basis of this style guide.
@@ -74,22 +73,18 @@ For example, if we have `models` module, with a User model inside, redundant nam
 Instead, it should simply be called `User`. Capitalization indicates that `User` is a class, it's location (inside models),
 indicate that it's a model.
 
-Try to avoid importing symbols directly, for example, if we want the `User` model from the models submodule of the database package:
+In cases where this would cause ambiguity or uncertainty when reading the code, try to avoid importing the symbols directly, for example, if we want the `User` model from the models submodule of the database package:
 ```python
-# Good
-import database.models
-my_user = models.User()
-
-# Good
-from database import models
-my_user = models.User()
-
-# Bad
 from database.models import User
+# May not be clear what User is, in this context
 my_user = User()
+
+
+from database import models
+# Less ambiguous, we can clearly see where User comes from
+my_user = models.User()
 ```
 The idea is that with `models.User()` it's easier to understand what `User` is in this context.
-There are situations where a direct import of a symbol is okay (like when using the typing module), so use common sense.
 
 ### Docstrings, Comments and Dead Code.
 When writing docstrings, use one of the existing standards for docstrings, like [Numpy docstrings](https://numpydoc.readthedocs.io/en/latest/format.html)
@@ -127,7 +122,7 @@ If you remove a call to a piece of code (function, class, etc.) and that code is
 7. Don't be afraid to use abstractions like list comprehensions, generators, iterators, context managers etc. where appropriate.
 8. Don't use mutable types as default arguments.
 9. Prefer pure functions over object-oriented programming, but use OOP when appropriate.
-10. When writing classes, don't create getters and setters, just access the attribute directly.
+10. When writing classes, don't create getters and setters unless necessary, just access the attribute directly.
 
 ### Exceptions and Error Handling
 Python's error handling is built around exceptions. Use them.
@@ -419,6 +414,9 @@ to the class, should be prefixed with `_`.
 
 In case it is necessary to run code whenever the user sets or gets an attribute,
 use the [`@property` decorator](https://docs.python.org/3/library/functions.html#property).
+Note that if you start out by using a simple attribute, you can later change it to a `@property` decorated getter method
+without changing the class interface at all. The users of the class will be none the wiser.
+
 It is also considered good practice to use the `@classmethod` decorator for factory methods and `@staticmethod` for any static methods.
 
 When writing functions with default arguments, don't use mutable default values like
