@@ -74,22 +74,18 @@ For example, if we have `models` module, with a User model inside, redundant nam
 Instead, it should simply be called `User`. Capitalization indicates that `User` is a class, it's location (inside models),
 indicate that it's a model.
 
-Try to avoid importing symbols directly, for example, if we want the `User` model from the models submodule of the database package:
+In cases where this would cause ambiguity or uncertainty when reading the code, try to avoid importing the symbols directly, for example, if we want the `User` model from the models submodule of the database package:
 ```python
-# Good
-import database.models
-my_user = models.User()
-
-# Good
-from database import models
-my_user = models.User()
-
-# Bad
 from database.models import User
+# May not be clear what User is, in this context
 my_user = User()
+
+
+from database import models
+# Less ambiguous, we can clearly see where User comes from
+my_user = models.User()
 ```
 The idea is that with `models.User()` it's easier to understand what `User` is in this context.
-There are situations where a direct import of a symbol is okay (like when using the typing module), so use common sense.
 
 ### Docstrings, Comments and Dead Code.
 When writing docstrings, use one of the existing standards for docstrings, like [Numpy docstrings](https://numpydoc.readthedocs.io/en/latest/format.html)
