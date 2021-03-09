@@ -26,14 +26,13 @@ Finally, there are sometimes good reasons for breaking the rules, so use your be
 5. Make names descriptive, but concise.
 6. Symbols that are internal to a module or class, should start with `_`.
 7. Avoid redundant naming, e.g. `models.UserModel`.
-8. Avoid importing symbols directly, instead import the entire module.
-9. Use [new-style format strings](https://docs.python.org/3/library/string.html#format-string-syntax),
+8. Use [new-style format strings](https://docs.python.org/3/library/string.html#format-string-syntax),
    don't use old style `%` format strings or string concatenation with `+`.
-10. Public functions must be documented with docstrings
-11. Avoid comments, unless they are absolutely necessary for understanding the code.
-12. Never commit commented-out code. Just delete it, Git remembers.
-13. Remove dead code as early as possible. Don't leave it around *just in case we need it*, Git remembers.
-14. Follow the boy scout rule, leave code better than you found it.
+9. Public functions must be documented with docstrings
+10. Keep comments to a minimum, generally only needed when they are necessary for understanding the code.
+11. Never commit commented-out code. Just delete it, Git remembers.
+12. Remove dead code as early as possible. Don't leave it around *just in case we need it*, Git remembers.
+13. Follow the boy scout rule, leave code better than you found it.
 
 ### PEP8
 [PEP8](https://www.python.org/dev/peps/pep-0008/) forms the basis of this style guide.
