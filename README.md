@@ -16,7 +16,7 @@ Each chapter takes the form of a list of rules, followed by subsections of clari
 Finally, there are sometimes good reasons for breaking the rules, so use your best judgement.
 
 ## Style
-1. PEP8 is **law**, never break PEP8. Only exceptions:
+1. PEP8 is **law**, never break PEP8. The only exceptions are:
     - lines are allowed to be up to 99 characters.
     - functions with long argument list should prefer [Black style](https://github.com/psf/black/issues/1178)
 2. Use a linter like `flake8` to make sure that your code follows PEP8.
