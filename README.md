@@ -19,6 +19,24 @@ Finally, there are sometimes good reasons for breaking the rules, so use your be
 1. PEP8 is **law**, never break PEP8. The only exceptions are:
     - lines are allowed to be up to 99 characters.
     - functions with long argument list should prefer [Black style](https://github.com/psf/black/issues/1178)
+   
+   ```python
+   # PEP8 reccommendation
+   def long_function_name(
+         var_one, var_two, var_three,
+         var_four):
+      print(var_one)
+
+   # Black style formatting
+   def long_function_name(
+      var_one, 
+      var_two, 
+      var_three,
+      var_four
+   ):
+      print(var_one)
+   ```
+
 2. Use a linter like `flake8` to make sure that your code follows PEP8.
 3. Consider running `flake8` as a Github CI check.
 4. Decide on, and be consistent about, style issues not covered by PEP8, like:
