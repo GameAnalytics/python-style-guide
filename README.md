@@ -21,7 +21,7 @@ Finally, there are sometimes good reasons for breaking the rules, so use your be
     - functions with long argument list should prefer [Black style](https://github.com/psf/black/issues/1178)
    
    ```python
-   # PEP8 reccommendation
+   # PEP8 recommendation
    def long_function_name(
          var_one, var_two, var_three,
          var_four):
